@@ -40,9 +40,11 @@ export async function create(data){
         }
     }
 
-    const resp = await fetch(url, options)
+    console.log(FormData)
 
-    if (resp.status !== 201) return { error: "erro ao cadastrar"}
+    // const resp = await fetch(url, options)
+
+    // if (resp.status !== 201) return { error: "erro ao cadastrar"}
 
     revalidatePath("/emprestimo")
 }

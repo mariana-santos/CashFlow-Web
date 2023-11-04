@@ -1,65 +1,112 @@
-"use client"
+"use client";
 
 import { create } from "@/actions/emprestimo";
 import { get } from "@/actions/tiposCredito";
 
 import Button from "@/components/button";
 import InputText from "@/components/input-text";
+import Select from "@/components/select";
+import Display from "@/components/display";
 import NavBar from "@/components/navbar";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { formatCurrency, calculateFees } from "@/utils";
 
 export default function NewEmprestimo() {
+  const [tiposCredito, setTiposCredito] = useState([]);
+  const [tipoCredito, setTipoCredito] = useState(tiposCredito[0]);
+  const [valorContratado, setValorContratado] = useState(100);
+  const [qtdParcelas, setQtdParcelas] = useState(1);
+  const [valorParcela, setValorParcela] = useState(100);
+  const [valorTotal, setValorTotal] = useState(105);
 
-    const [tiposCredito, setTiposCredito] = useState([])
+  const { push } = useRouter();
 
-    const { push } = useRouter()
+  async function onSubmit() {
+    // const resp = await create(formData)
 
-    async function onSubmit(formData){
-        const resp = await create(formData)
+    // if (resp?.error) {
+    // toast.error(resp.error)
+    // return
+    // }
 
-        if (resp?.error) {
-            toast.error(resp.error)
-            return
-        }
+    // push("/emprestimos")
+  }
 
-        push("/emprestimos")
+  useEffect(() => {
+    async function fetchTiposCredito() {
+      try {
+        const tiposCreditoData = await get();
+        setTiposCredito(tiposCreditoData);
+        setTipoCredito(tiposCreditoData[0]);
+      } catch (error) {
+        toast.error("Erro ao buscar dados dos tipos de crédito");
+      }
     }
 
-    useEffect(() => {
-        async function fetchTiposCredito() {
-            try {
-                setTiposCredito(await get());
-            } catch (error) {
-                toast.error("Erro ao buscar dados dos tipos de crédito");
-            }
-        }
+    fetchTiposCredito();
+  }, []);
 
-        fetchTiposCredito();
-    }, []);
+  useEffect(() => {
+    const novoValorTotal = calculateFees(valorContratado, tipoCredito?.taxaJuros);
+    setValorTotal(novoValorTotal);
+    setValorParcela(novoValorTotal / qtdParcelas);
+  }, [valorContratado, tipoCredito, qtdParcelas])
 
-    return (
-        <>
-            <NavBar />
+  return (
+    <>
+      <NavBar />
 
-            <main className="container bg-blue-100 flex-1 p-10 mt-20 rounded-md border-blue-300 border- mx-auto max-w-3xl">
-                <h2 className="text-4xl font-bold">Novo Empréstimo</h2>
+      <main className="container bg-blue-100 flex-1 p-10 mt-20 rounded-md border-blue-300 border- mx-auto max-w-3xl mb-40">
+        <h2 className="text-4xl font-bold">Novo Empréstimo</h2>
 
-                <form action={onSubmit} className="flex flex-col items-start gap-2 mt-2">
-                    <InputText name="valor" label="Valor contratado" />
-                    <select>
-                        {tiposCredito?.map(tipo => {
-                            return(
-                                <option value={tipo.nome}>{tipo.nome} </option>
-                            )
-                        })}
-                    </select>
-                    <InputText name="nome" label="nome" />
-                    <Button type="button">salvar</Button>
-                </form>
+        <section className="flex gap-10 center">
+          <form
+            action={onSubmit}
+            className="flex flex-col items-start gap-2 mt-2 w-1/2"
+          >
+            <InputText
+              name="valorContratado"
+              label="Valor contratado"
+              type="number"
+              min={100}
+              max={1000000}
+              value={valorContratado}
+              onChange={(e) => (e.target.value >= 100 && e.target.value <= 1000000) && setValorContratado(e.target.value)}
+            />
+            <Select
+              options={tiposCredito}
+              name="tipoCredito"
+              label="Tipo de crédito"
+              value={tipoCredito?.id}
+              onChange={(e) =>
+                setTipoCredito(
+                  tiposCredito.find(
+                    (tipo) => tipo.id === parseInt(e.target.value, 10)
+                  )
+                )
+              }
+            />
+            <InputText
+              name="numeroParcelas"
+              label="Qtd. de Parcelas"
+              type="number"
+              min={1}
+              value={qtdParcelas}
+              onChange={(e) => (e.target.value >= 1 && e.target.value <= tipoCredito?.limiteMeses) && setQtdParcelas(e.target.value)}
+            />
+            <Button type="button">salvar</Button>
+          </form>
 
-            </main>
-        </>
-    )
+          <div className="text-slate-700 mt-10 text-2xl w-1/2">
+            <h2 className="text-2xl font-extrabold text-slate-950">Simulação</h2>
+            <Display label="Total: " value={formatCurrency(valorTotal)} />
+            <Display label={`${qtdParcelas}x de `} value={formatCurrency(valorParcela)} />
+            <small>{tipoCredito?.taxaJuros}% de juros</small>
+          </div>
+        </section>
+      </main>
+    </>
+  );
 }

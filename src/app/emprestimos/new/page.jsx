@@ -2,7 +2,7 @@
 
 import { create } from "@/actions/emprestimo";
 import { get } from "@/actions/tiposCredito";
-
+import { user } from "@/data/user";
 import Button from "@/components/button";
 import InputText from "@/components/input-text";
 import Select from "@/components/select";
@@ -17,21 +17,29 @@ export default function NewEmprestimo() {
   const [tiposCredito, setTiposCredito] = useState([]);
   const [tipoCredito, setTipoCredito] = useState(tiposCredito[0]);
   const [valorContratado, setValorContratado] = useState(100);
-  const [qtdParcelas, setQtdParcelas] = useState(1);
+  const [numeroParcelas, setNumeroParcelas] = useState(1);
   const [valorParcela, setValorParcela] = useState(100);
   const [valorTotal, setValorTotal] = useState(105);
 
   const { push } = useRouter();
 
   async function onSubmit() {
-    // const resp = await create(formData)
+    const data = {
+      usuario: user,
+      tipoCredito,
+      valorContratado,
+      numeroParcelas,
+      valorParcela,
+      valorTotal,
+    }
+    const resp = await create(data)
 
-    // if (resp?.error) {
-    // toast.error(resp.error)
-    // return
-    // }
+    if (resp?.error) {
+      toast.error(resp.error)
+      return
+    }
 
-    // push("/emprestimos")
+    push("/emprestimos")
   }
 
   useEffect(() => {
@@ -51,8 +59,8 @@ export default function NewEmprestimo() {
   useEffect(() => {
     const novoValorTotal = calculateFees(valorContratado, tipoCredito?.taxaJuros);
     setValorTotal(novoValorTotal);
-    setValorParcela(novoValorTotal / qtdParcelas);
-  }, [valorContratado, tipoCredito, qtdParcelas])
+    setValorParcela(novoValorTotal / numeroParcelas);
+  }, [valorContratado, tipoCredito, numeroParcelas])
 
   return (
     <>
@@ -80,21 +88,15 @@ export default function NewEmprestimo() {
               name="tipoCredito"
               label="Tipo de crédito"
               value={tipoCredito?.id}
-              onChange={(e) =>
-                setTipoCredito(
-                  tiposCredito.find(
-                    (tipo) => tipo.id === parseInt(e.target.value, 10)
-                  )
-                )
-              }
+              onChange={(e) => setTipoCredito(tiposCredito.find((tipo) => tipo.id === parseInt(e.target.value, 10)))}
             />
             <InputText
               name="numeroParcelas"
               label="Qtd. de Parcelas"
               type="number"
               min={1}
-              value={qtdParcelas}
-              onChange={(e) => (e.target.value >= 1 && e.target.value <= tipoCredito?.limiteMeses) && setQtdParcelas(e.target.value)}
+              value={numeroParcelas}
+              onChange={(e) => (e.target.value >= 1 && e.target.value <= tipoCredito?.limiteMeses) && setNumeroParcelas(e.target.value)}
             />
             <Button type="button">salvar</Button>
           </form>
@@ -102,7 +104,7 @@ export default function NewEmprestimo() {
           <div className="text-slate-700 mt-10 text-2xl w-1/2">
             <h2 className="text-2xl font-extrabold text-slate-950">Simulação</h2>
             <Display label="Total: " value={formatCurrency(valorTotal)} />
-            <Display label={`${qtdParcelas}x de `} value={formatCurrency(valorParcela)} />
+            <Display label={`${numeroParcelas}x de `} value={formatCurrency(valorParcela)} />
             <small>{tipoCredito?.taxaJuros}% de juros</small>
           </div>
         </section>

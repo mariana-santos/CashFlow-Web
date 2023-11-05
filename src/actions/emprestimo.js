@@ -5,48 +5,24 @@ import { revalidatePath } from "next/cache"
 export async function create(data){
     const url = "http://localhost:8080/emprestimos"
 
-    const dataExample = {
-        "usuario": {
-            "nome": "Marianaaaa",
-            "email": "mariana@gmail.com",
-            "cpf": "000.000.000-00",
-            "dataNascimento": "28/03/2004",
-            "cep": "00000000",
-            "logradouro": "rua exemplo",
-            "localidade": "São Paulo",
-            "numero": 123,
-            "uf": "SP",
-            "valorDivida": 700,
-            "telefone": 123
-        },
-        "tipoCredito": {
-            "nome": "Empréstimosdsd",
-            "taxaJuros": 5,
-            "limiteMeses": 25,
-            "rendaNecessaria": 7000
-        },
-        "valorContratado": 500,
-        "taxaJuros": 5,
-        "numeroParcelas": 10,
-        "valorParcela": 60,
-        "valorTotal": 600
-    };
-
     const options = {
         method: "POST", 
-        body: JSON.stringify(dataExample),
+        body: JSON.stringify(data),
         headers: {
             "Content-Type": "application/json"
         }
     }
 
-    console.log(FormData)
+    const resp = await fetch(url, options)
+  
+    if (resp.status !== 201) {
+        const responseContent = await resp.json();
+        console.error("Conteúdo da resposta do servidor:", responseContent);
+        return { error: "erro ao cadastrar"};
+    }
 
-    // const resp = await fetch(url, options)
-
-    // if (resp.status !== 201) return { error: "erro ao cadastrar"}
-
-    revalidatePath("/emprestimo")
+    revalidatePath("/emprestimos")
+    
 }
 
 export async function get(){

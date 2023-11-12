@@ -20,7 +20,7 @@ export default async function Emprestimos() {
           </Button>
         </div>
 
-        <div className="flex space-y-2">
+        <div className="flex gap-6 mt-6 flex-wrap">
           {emprestimos.map(emprestimo => <Card emprestimo={emprestimo} />)}
         </div>
       </main>

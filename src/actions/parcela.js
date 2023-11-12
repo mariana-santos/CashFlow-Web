@@ -1,11 +1,10 @@
 "use server"
 
-import { generateParcelas } from "@/utils"
 import { revalidatePath } from "next/cache"
-import { createMultiple } from "./parcela"
 
-export async function create(data){
-    const url = "http://localhost:8080/emprestimos"
+
+export async function createMultiple(data){
+    const url = "http://localhost:8080/parcelas/batch"
 
     const options = {
         method: "POST", 
@@ -23,15 +22,15 @@ export async function create(data){
         return { error: "erro ao cadastrar"};
     }
 
-    revalidatePath("/emprestimos")
+    revalidatePath("/parcelas")
 }
 
-export async function get(){
-    const url = "http://localhost:8080/emprestimos"
+export async function getById(id){
+    const url = "http://localhost:8080/parcelas/" + id
     const resp = await fetch(url)
     
     if (resp.status !== 200) {
-        if (typeof window !== 'undefined') alert("erro ao buscar dados dos empréstimos")
+        if (typeof window !== 'undefined') alert("erro ao buscar dados da parcela")
         return
     }
 

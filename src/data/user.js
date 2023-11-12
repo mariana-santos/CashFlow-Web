@@ -1,14 +1,16 @@
 export const user = 
 {
-    "nome": "Mariana",
+    "id": 1,
+    "imagem": null,
+    "nome": "Mariana Santos",
     "email": "mariana@gmail.com",
+    "telefone": "707070",
     "cpf": "000.000.000-00",
-    "dataNascimento": "28/03/2004",
+    "dataNascimento": "362/12/2004",
     "cep": "00000000",
     "logradouro": "rua exemplo",
     "localidade": "São Paulo",
-    "numero": 123,
+    "numero": "123",
     "uf": "SP",
-    "valorDivida": 700,
-    "telefone": 123
+    "valorDivida": 700.0
 }

@@ -11,7 +11,7 @@ import NavBar from "@/components/navbar";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { formatCurrency, calculateFees } from "@/utils";
+import { formatCurrency, calculateFees, generateParcelas } from "@/utils";
 
 export default function NewEmprestimo() {
   const [tiposCredito, setTiposCredito] = useState([]);
@@ -23,8 +23,9 @@ export default function NewEmprestimo() {
 
   const { push } = useRouter();
 
-  async function onSubmit() {
-    const data = {
+  async function onSubmit(event) {
+    event.preventDefault();
+    const emprestimo = {
       usuario: user,
       tipoCredito,
       valorContratado,
@@ -32,6 +33,13 @@ export default function NewEmprestimo() {
       valorParcela,
       valorTotal,
     }
+    const data = {
+      ...emprestimo,
+      parcelas: generateParcelas(emprestimo)
+    }
+
+    console.log(JSON.stringify(data))
+
     const resp = await create(data)
 
     if (resp?.error) {
@@ -71,7 +79,7 @@ export default function NewEmprestimo() {
 
         <section className="flex gap-10 center">
           <form
-            action={onSubmit}
+            onSubmit={onSubmit}
             className="flex flex-col items-start gap-2 mt-2 w-1/2"
           >
             <InputText
@@ -98,7 +106,7 @@ export default function NewEmprestimo() {
               value={numeroParcelas}
               onChange={(e) => (e.target.value >= 1 && e.target.value <= tipoCredito?.limiteMeses) && setNumeroParcelas(e.target.value)}
             />
-            <Button type="button">salvar</Button>
+            <Button type="submit">salvar</Button>
           </form>
 
           <div className="text-slate-700 mt-10 text-2xl w-1/2">

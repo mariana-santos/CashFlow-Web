@@ -4,6 +4,7 @@ export const user =
     "imagem": null,
     "nome": "Mariana Santos",
     "email": "mariana@gmail.com",
+    "senha": "1234567",
     "telefone": "707070",
     "cpf": "000.000.000-00",
     "dataNascimento": "362/12/2004",

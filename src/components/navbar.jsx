@@ -20,11 +20,16 @@ export default function NavBar() {
         </li>
       </ul>
 
-      <div className="h-14 w-14 rounded-full overflow-hidden">
-        <img
-          src="https://github.com/mariana-santos.png"
-          alt="Avatar do usuário"
-        />
+      <div>
+        <button onClick={() => login("joao@fiap.com.br", "12345678")}>login</button>
+        <button onClick={() => logout()}>logout</button>
+        {user?.name}
+        <div className="h-14 w-14 rounded-full overflow-hidden">
+          <img
+            src="https://github.com/mariana-santos.png"
+            alt="Avatar do usuário"
+          />
+        </div>
       </div>
     </nav>
   );
